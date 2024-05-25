@@ -3,7 +3,6 @@ package com.example.simplememo.controller;
 import com.example.simplememo.model.Memo;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +17,6 @@ import java.util.List;
 
 @RestController // JSONやXMLなどのデータを返すコントローラーであることを示す
 @RequestMapping("/api/memos") // 個別のメソッドに"api/memos/create"と書く必要がなくなる
-@CrossOrigin(origins = "http://localhost:3000") // CORSを許可する
 public class SimpleMemoController {
 
   private List<Memo> allMemos = new ArrayList<Memo>();
