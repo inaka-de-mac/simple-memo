@@ -1,71 +1,53 @@
 package com.example.simplememo.controller;
 
 import com.example.simplememo.model.Memo;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import com.example.simplememo.service.MemoService;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
-@RestController // JSONやXMLなどのデータを返すコントローラーであることを示す
-@RequestMapping("/api/memos") // 個別のメソッドに"api/memos/create"と書く必要がなくなる
+@RestController
+@RequestMapping("/api/memos")
 public class SimpleMemoController {
+    private final MemoService memoService;
 
-  private List<Memo> allMemos = new ArrayList<Memo>();
-  private int nextId = 0; // 削除されたメモIDと重複しないように次のメモのIDを保持する
-
-  @GetMapping
-  public ResponseEntity<List<Memo>> getAllMemos() {
-    return ResponseEntity.ok(allMemos);
-  }
-
-  @PostMapping
-  public ResponseEntity<Integer> createMemo(@RequestBody String content) {
-    LocalDateTime now = LocalDateTime.now();
-    Memo newMemo = new Memo(nextId++, content, now, now);
-    allMemos.add(newMemo);
-    return ResponseEntity.ok(newMemo.getId());
-  }
-
-  @PutMapping("/{id}")
-  public ResponseEntity<Void> updateMemo(@PathVariable int id, @RequestBody String content) {
-    LocalDateTime now = LocalDateTime.now();
-    Memo memoToUpdate = findMemoById(id);
-    if (memoToUpdate != null) {
-      memoToUpdate.setContent(content);
-      memoToUpdate.setUpdatedAt(now);
-      return ResponseEntity.ok().build();
-    } else {
-      return ResponseEntity.notFound().build();
+    public SimpleMemoController(MemoService memoService) {
+        this.memoService = memoService;
     }
-  }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteMemo(@PathVariable int id) {
-    Memo memoToDelete = findMemoById(id);
-    if (memoToDelete != null) {
-      allMemos.remove(memoToDelete);
-      return ResponseEntity.noContent().build(); // 物理削除は204
-    } else {
-      return ResponseEntity.notFound().build();
+    // 全てのMemoレコードを取得するエンドポイント
+    @GetMapping
+    public List<Memo> getAllMemos() {
+        return memoService.findAll();
     }
-  }
 
-  private Memo findMemoById(int id) {
-    for (Memo memo : allMemos) {
-      if (memo.getId() == id) {
-        return memo;
-      }
+    // 新しいMemoレコードを作成するエンドポイント
+    @PostMapping
+    public int createMemo(@RequestBody String content) {
+        // リクエストの内容から新しいMemoオブジェクトを作成し、Serviceに挿入を依頼
+        Memo newMemo = new Memo(0, content, LocalDateTime.now(), LocalDateTime.now());
+        memoService.insert(newMemo);
+        // 作成したMemoのIDを返す
+        return newMemo.getId();
     }
-    return null;
-  }
 
+    // 指定されたIDのMemoレコードを更新するエンドポイント
+    @PutMapping("/{id}")
+    public void updateMemo(@PathVariable int id, @RequestBody String content) {
+        // 指定されたIDのMemoレコードをServiceから取得し、内容を更新
+        Memo memoToUpdate = memoService.findById(id);
+        if (memoToUpdate != null) {
+            memoToUpdate.setContent(content);
+            memoToUpdate.setUpdatedAt(LocalDateTime.now());
+            memoService.update(memoToUpdate);
+        }
+    }
+
+    // 指定されたIDのMemoレコードを削除するエンドポイント
+    @DeleteMapping("/{id}")
+    public void deleteMemo(@PathVariable int id) {
+        // 指定されたIDのMemoレコードをServiceから削除
+        memoService.delete(id);
+    }
 }
