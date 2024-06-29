@@ -3,7 +3,7 @@ package com.example.simplememo.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.simplememo.controller.AuthRequest;
+import com.example.simplememo.controller.SignInRequest;
 import com.example.simplememo.controller.SignUpRequest;
 import com.example.simplememo.mapper.UserMapper;
 import com.example.simplememo.model.User;
@@ -14,7 +14,7 @@ public class UserService {
     private UserMapper userMapper;
 
     public void signup(SignUpRequest request) {
-        // 該当のメールアドレスが既に登録されているか確認
+        System.out.println("receive request");
         User user = userMapper.findByEmail(request.getEmail());
         if (user != null) {
             throw new RuntimeException("入力されたメールアドレスは既に登録されています。");
@@ -26,21 +26,23 @@ public class UserService {
         }
     }
 
-    public User signin(AuthRequest request) {
+    public User signin(SignInRequest request) {
+        System.out.println("receive request");
         User user = userMapper.findByEmail(request.getEmail());
-        if (user.getPassword().equals(request.getPassword())) {
-            return user;
-        } else {
-            throw new RuntimeException("入力されたパスワードが違います。");
+        if (user == null) {
+            throw new RuntimeException("User not found with email: " + request.getEmail());
+        } else if (!user.getPassword().equals(request.getPassword())) {
+            throw new RuntimeException("Invalid password for user: " + request.getEmail());
         }
+        return user;
     }
 
-    public void deleteUser(AuthRequest request) {
-        User user = userMapper.findByEmail(request.getEmail());
-        if (user.getPassword().equals(request.getPassword())) {
-            userMapper.deleteUser(request.getEmail());
-        } else {
-            throw new RuntimeException("入力されたパスワードが違います。");
+    public void deleteUser(String email) {
+        System.out.println("receive request");
+        try {
+            userMapper.deleteUser(email);
+        } catch (Exception e) {
+            throw new RuntimeException("削除に失敗しました。");
         }
     }
 }

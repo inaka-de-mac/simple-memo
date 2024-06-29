@@ -29,7 +29,7 @@ public class UserController {
   }
 
   @PostMapping("/signin")
-  public ResponseEntity<User> signin(@RequestBody AuthRequest request) {
+  public ResponseEntity<User> signin(@RequestBody SignInRequest request) {
     try {
       User user = userService.signin(request);
       return new ResponseEntity<>(user, HttpStatus.OK); // 200
@@ -39,9 +39,9 @@ public class UserController {
   }
 
   @DeleteMapping("/account")
-  public ResponseEntity<Void> deleteUser(@RequestBody AuthRequest request) {
+  public ResponseEntity<Void> deleteUser(@RequestBody String email) {
     try {
-      userService.deleteUser(request);
+      userService.deleteUser(email);
       return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204
     } catch (RuntimeException e) {
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // 500

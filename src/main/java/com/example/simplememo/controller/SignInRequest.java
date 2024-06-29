@@ -3,7 +3,7 @@ package com.example.simplememo.controller;
 import lombok.Data;
 
 @Data
-public class AuthRequest {
+public class SignInRequest {
     private String email;
     private String password;
 }
