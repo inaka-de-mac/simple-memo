@@ -12,7 +12,7 @@ import com.example.simplememo.model.User;
 @Mapper
 public interface UserMapper {
     @Insert("INSERT INTO users (email, password, user_name, created_at, updated_at) VALUES (#{email}, #{password}, #{userName}, NOW(), NOW())")
-    void insertUser(SignUpRequest request);
+    void insertMemoUser(SignUpRequest request);
 
     @Select("SELECT * FROM users WHERE email = #{email}")
     User findByEmail(String email);

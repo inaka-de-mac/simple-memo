@@ -20,7 +20,7 @@ public class UserService {
             throw new RuntimeException("入力されたメールアドレスは既に登録されています。");
         }
         try {
-            userMapper.insertUser(request);
+            userMapper.insertMemoUser(request);
         } catch (Exception e) {
             throw new RuntimeException("登録に失敗しました。入力内容を確認してください。");
         }

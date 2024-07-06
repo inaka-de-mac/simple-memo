@@ -7,19 +7,18 @@ import java.util.List;
 
 @Mapper
 public interface MemoMapper {
-    @Select("SELECT * FROM memos")
-    List<Memo> findAll();
+    @Select("SELECT * FROM memos WHERE user_id = #{userId}")
+    List<Memo> getMemosByUserId(int userId);
 
-    @Select("SELECT * FROM memos WHERE id = #{id}")
-    Memo findById(int id);
+    @Select("SELECT * FROM memos WHERE id = #{id} AND user_id = #{userId}")
+    Memo findMemo(@Param("userId") int userId, @Param("id") int id);
 
-    @Insert("INSERT INTO memos(content, created_at, updated_at) VALUES(#{content}, #{createdAt}, #{updatedAt})")
-    @Options(useGeneratedKeys = true, keyProperty = "id")
-    void insert(Memo memo);
+    @Insert("INSERT INTO memos(user_id, title, content, created_at, updated_at) VALUES(#{userId}, #{memo.title}, #{memo.content}, #{memo.createdAt}, #{memo.updatedAt})")
+    void insertMemo(@Param("userId") int userId, @Param("memo") Memo memo);
 
-    @Update("UPDATE memos SET content=#{content}, updated_at=#{updatedAt} WHERE id=#{id}")
-    void update(Memo memo);
+    @Update("UPDATE memos SET title=#{memo.title}, content=#{memo.content}, updated_at=#{memo.updatedAt} WHERE id=#{id} AND user_id = #{userId}")
+    void updateMemo(@Param("userId") int userId, @Param("id") int id, @Param("memo") Memo memo);
 
-    @Delete("DELETE FROM memos WHERE id=#{id}")
-    void delete(int id);
+    @Delete("DELETE FROM memos WHERE id=#{id} AND user_id = #{userId}")
+    void deleteMemo(@Param("userId") int userId, @Param("id") int id);
 }
